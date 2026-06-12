@@ -1,0 +1,22 @@
+{
+  "name": "winticars-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Throwaway clickable façade for Winti Cars validation interviews. NOT the production app — no backend, no auth, all data is fake fixtures.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}
