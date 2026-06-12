@@ -15,7 +15,8 @@ const nextConfig = {
   output: "export",
   images: { unoptimized: true },
   trailingSlash: true,
-  // basePath: "/winticars-demo",
+  // Served from a GitHub Pages project site → https://<user>.github.io/winticars-demo
+  basePath: "/winticars-demo",
 };
 
 export default nextConfig;
