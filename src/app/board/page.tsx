@@ -150,7 +150,7 @@ function DealerDashboard({ count }: { count: number }) {
 
       {/* quick stats */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-        <Stat value={String(count)} label="im Netzwerk" />
+        <Stat value={String(count)} label="auf dem Board" />
         <Stat value="3" label="meine Inserate" />
         <Stat value="2" label="offene Anfragen" />
       </div>
