@@ -27,14 +27,15 @@ import {
   type OrderMessage,
 } from "@/fixtures/orders";
 
-// Supply-side roles are split in v2: garage = MFK/Mechanik, painter = Lackierung.
-export type Role = "dealer" | "transporter" | "garage" | "painter";
+// Supply-side roles: garage = MFK/Mechanik, painter = Lackierung, detailer = Aufbereitung.
+export type Role = "dealer" | "transporter" | "garage" | "painter" | "detailer";
 
 export const ROLE_LABELS: Record<Role, string> = {
   dealer: "Händler",
   transporter: "Transporteur",
   garage: "Garage / MFK",
   painter: "Lackierer",
+  detailer: "Aufbereiter",
 };
 
 /** Board layout density — persisted so it survives navigation + relaunch. */
@@ -47,9 +48,9 @@ type DemoState = {
   boardView: BoardView; // compact (dense list) ⇄ comfortable (Großansicht)
 };
 
-// Bumped from v1: the state shape changed (boardView + order messages), so old
-// persisted state must not hydrate into the new app.
-const STORAGE_KEY = "winticars-demo-v2";
+// Bumped per iteration when seed data / state shape changes, so old persisted
+// state never hydrates into the new app. v3: detailer role + detailing orders.
+const STORAGE_KEY = "winticars-demo-v3";
 
 function initialState(): DemoState {
   return { role: null, contacted: [], orders: [...SEED_ORDERS], boardView: "compact" };

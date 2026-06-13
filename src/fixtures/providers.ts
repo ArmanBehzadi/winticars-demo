@@ -7,18 +7,20 @@
  * ───────────────────────────────────────────────────────────────────────────
  */
 
-export type ServiceKind = "transport" | "paint" | "mechanic";
+export type ServiceKind = "transport" | "paint" | "mechanic" | "detailing";
 
 export const SERVICE_LABELS: Record<ServiceKind, string> = {
   transport: "Transport",
   paint: "Lackierung",
   mechanic: "MFK / Mechanik",
+  detailing: "Aufbereitung",
 };
 
 export const SERVICE_CTA: Record<ServiceKind, string> = {
   transport: "Transport anfragen",
   paint: "Lackierung anfragen",
   mechanic: "MFK / Service anfragen",
+  detailing: "Aufbereitung anfragen",
 };
 
 export type Provider = {
@@ -121,6 +123,19 @@ export const PROVIDERS: Provider[] = [
     etaText: "Termin diese Woche",
     priceFromChf: 150,
     blurb: "Allround-Service, kleine Reparaturen, Pneuwechsel.",
+  },
+  // ── Detailing / Aufbereitung ──────────────────────────────────────────────
+  {
+    id: "p-glanz-eulach",
+    name: "GlanzWerk Eulachtal",
+    kind: "detailing",
+    city: "Winterthur-Oberi",
+    verified: true,
+    rating: 4.8,
+    jobs: 124,
+    etaText: "Termin in 2 Tagen",
+    priceFromChf: 190,
+    blurb: "Innen- & Aussenaufbereitung, Politur & Versiegelung vor dem Verkauf.",
   },
 ];
 

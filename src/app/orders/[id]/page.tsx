@@ -4,7 +4,7 @@ import { OrderDetail } from "./OrderDetail";
 
 // Created-order ids are deterministic (`o-<carId>-<kind>`), so we can pre-render
 // every order that can ever exist — seed orders + all create-order combinations.
-const KINDS = ["transport", "paint", "mechanic"] as const;
+const KINDS = ["transport", "paint", "mechanic", "detailing"] as const;
 
 export function generateStaticParams() {
   const ids = new Set<string>();

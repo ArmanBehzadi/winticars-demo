@@ -28,7 +28,7 @@ import {
 } from "@/fixtures/providers";
 import type { Order } from "@/fixtures/orders";
 
-const KINDS: ServiceKind[] = ["transport", "paint", "mechanic"];
+const KINDS: ServiceKind[] = ["transport", "paint", "mechanic", "detailing"];
 
 export function CreateOrder({ carId }: { carId: string }) {
   const router = useRouter();

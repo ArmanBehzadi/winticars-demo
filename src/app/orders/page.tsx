@@ -41,6 +41,10 @@ export default function OrdersPage() {
     title = "Eingehende Lackier-Aufträge";
     list = orders.filter((o) => o.kind === "paint");
     supplySide = true;
+  } else if (role === "detailer") {
+    title = "Eingehende Aufbereitungs-Aufträge";
+    list = orders.filter((o) => o.kind === "detailing");
+    supplySide = true;
   } else {
     title = "Meine Aufträge";
     list = orders.filter((o) => o.requesterName === me?.name);

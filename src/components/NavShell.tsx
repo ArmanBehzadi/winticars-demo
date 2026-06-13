@@ -36,7 +36,7 @@ const ICONS = {
 
 function tabsFor(role: Role | null): Tab[] {
   // Supply-side actors lead with their inbox; the dealer leads with the board.
-  if (role === "transporter" || role === "garage" || role === "painter") {
+  if (role === "transporter" || role === "garage" || role === "painter" || role === "detailer") {
     return [
       { href: "/orders", label: "Aufträge", icon: ICONS.orders },
       { href: "/board", label: "Börse", icon: ICONS.board },
@@ -51,7 +51,7 @@ function tabsFor(role: Role | null): Tab[] {
 }
 
 export function NavShell({ children }: { children: ReactNode }) {
-  const { role, hydrated, reset } = useDemo();
+  const { role, hydrated, reset, logout } = useDemo();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -66,7 +66,11 @@ export function NavShell({ children }: { children: ReactNode }) {
 
   return (
     <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-      <TopBar role={role} onReset={() => { reset(); router.replace("/"); }} />
+      <TopBar
+        role={role}
+        onReset={() => { reset(); router.replace("/"); }}
+        onSwitch={() => { logout(); router.replace("/"); }}
+      />
 
       <main
         style={{
@@ -132,7 +136,7 @@ export function NavShell({ children }: { children: ReactNode }) {
   );
 }
 
-function TopBar({ role, onReset }: { role: Role | null; onReset: () => void }) {
+function TopBar({ role, onReset, onSwitch }: { role: Role | null; onReset: () => void; onSwitch: () => void }) {
   // Triple-tap the wordmark within 600 ms → hidden reset for the next interview.
   const taps = useRef<number[]>([]);
   function onLogoTap() {
@@ -196,6 +200,28 @@ function TopBar({ role, onReset }: { role: Role | null; onReset: () => void }) {
             {ROLE_LABELS[role]}
           </span>
         )}
+        {/* Visible actor-switch — returns to the role picker, KEEPS demo data.
+            (Distinct from the hidden triple-tap-logo full reset.) */}
+        <button
+          onClick={onSwitch}
+          className="tap"
+          aria-label="Rolle wechseln"
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: ".4px",
+            color: "#fff",
+            background: "transparent",
+            border: "1px solid var(--red)",
+            borderRadius: "var(--radius)",
+            padding: "3px 9px",
+            cursor: "pointer",
+          }}
+        >
+          Login
+        </button>
       </div>
     </header>
   );

@@ -17,8 +17,9 @@ import { fakeLatency } from "@/demo/latency";
 import { carById } from "@/fixtures/cars";
 import { dealerById } from "@/fixtures/dealers";
 import { cannedReply, DEFAULT_INQUIRY } from "@/fixtures/replies";
+import { AgentNegotiation } from "./AgentNegotiation";
 
-type Stage = "idle" | "form" | "sending" | "replied";
+type Stage = "idle" | "form" | "sending" | "replied" | "agent";
 
 export function ListingDetail({ id }: { id: string }) {
   const router = useRouter();
@@ -114,13 +115,46 @@ export function ListingDetail({ id }: { id: string }) {
 
       {/* contact / share actions */}
       {stage === "idle" && (
-        <div style={{ display: "flex", gap: 8 }}>
-          <Button style={{ flex: 1 }} onClick={() => setStage("form")}>
-            Händler kontaktieren
-          </Button>
-          <Link href={`/c/${dealer?.slug}--${car.id}`} style={{ textDecoration: "none" }}>
-            <Button variant="ghost">Teilen</Button>
-          </Link>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button style={{ flex: 1 }} onClick={() => setStage("form")}>
+              Händler kontaktieren
+            </Button>
+            <Link href={`/c/${dealer?.slug}--${car.id}`} style={{ textDecoration: "none" }}>
+              <Button variant="ghost">Teilen</Button>
+            </Link>
+          </div>
+
+          {/* Concept CTA — ALONGSIDE the real contact flow, never replacing it. */}
+          <button
+            onClick={() => setStage("agent")}
+            className="press"
+            style={{
+              textAlign: "left",
+              background: "#fff",
+              border: "1.5px solid var(--red)",
+              borderLeft: "3px solid var(--red)",
+              borderRadius: "var(--radius)",
+              padding: "10px 13px",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 13, color: "var(--ink)" }}>
+              🤖 Agent senden <span style={{ color: "var(--red)" }}>(Konzept)</span>
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>
+              Ihr KI-Agent kontaktiert den Verkäufer-Agenten
+            </div>
+          </button>
+        </div>
+      )}
+
+      {stage === "agent" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <button onClick={() => setStage("idle")} className="tap" style={{ alignSelf: "flex-start", background: "none", border: "none", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12, padding: 0, cursor: "pointer" }}>
+            ← Abbrechen
+          </button>
+          <AgentNegotiation car={car} />
         </div>
       )}
 
