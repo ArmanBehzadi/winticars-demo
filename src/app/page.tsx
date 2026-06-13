@@ -11,11 +11,12 @@ import { useRouter } from "next/navigation";
 import { useDemo, ROLE_LABELS, type Role } from "@/demo/store";
 import { Input } from "@/components/ui";
 
-const ROLE_ORDER: Role[] = ["dealer", "transporter", "garage"];
+const ROLE_ORDER: Role[] = ["dealer", "transporter", "garage", "painter"];
 const ROLE_SUB: Record<Role, string> = {
   dealer: "Fahrzeuge handeln & finden",
   transporter: "Transportaufträge erhalten",
-  garage: "Lackier- & MFK-Aufträge erhalten",
+  garage: "MFK- & Service-Aufträge erhalten",
+  painter: "Lackier-Aufträge erhalten",
 };
 
 export default function LoginPage() {

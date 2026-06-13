@@ -2,24 +2,23 @@
 
 /**
  * SCENE 1 · THE BOARD (dealer hero) — browse local dealer inventory + filters.
- * Doubles as the dashboard: when logged in as a dealer it leads with a greeting,
- * quick stats, and the "just-traded car → organise transport" entry to Scene 4.
+ * v2: no dashboard/stats strip (removed the only platform-scale-stat surface).
+ * A persisted view toggle switches between a dense "Kompakt" list and the
+ * "Großansicht" cards. The entry into the create-order flow now lives on the
+ * Aufträge page (＋ Auftrag), so nothing orphans.
  */
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { NavShell } from "@/components/NavShell";
-import { ListingCard } from "@/components/ListingCard";
-import { CarPhoto } from "@/components/CarPhoto";
-import { Input, Select, Badge, PageTitle, chf } from "@/components/ui";
+import { ListingCard, CompactListingCard } from "@/components/ListingCard";
+import { Input, Select, PageTitle } from "@/components/ui";
 import { useDemo } from "@/demo/store";
-import { CARS, justTradedCar } from "@/fixtures/cars";
-import { dealerById, ME_DEALER_ID } from "@/fixtures/dealers";
+import { CARS } from "@/fixtures/cars";
 
 const FUELS = ["", "Benzin", "Diesel", "Hybrid", "Elektro"];
 
 export default function BoardPage() {
-  const { role } = useDemo();
+  const { boardView, setBoardView } = useDemo();
   const [make, setMake] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [fuel, setFuel] = useState("");
@@ -40,17 +39,13 @@ export default function BoardPage() {
     return r;
   }, [make, priceMax, fuel, sort]);
 
-  const isDealer = role === "dealer";
+  const compact = boardView === "compact";
 
   return (
     <NavShell>
-      {isDealer && <DealerDashboard count={rows.length} />}
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", margin: "4px 0 12px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "0 0 12px" }}>
         <PageTitle>Fahrzeugbörse</PageTitle>
-        <span style={{ fontSize: 12, color: "var(--muted)" }}>
-          {rows.length} {rows.length === 1 ? "Inserat" : "Inserate"}
-        </span>
+        <ViewToggle compact={compact} onChange={setBoardView} />
       </div>
 
       {/* Filters */}
@@ -94,11 +89,17 @@ export default function BoardPage() {
         </Field>
       </div>
 
-      {/* Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
-        {rows.map((car) => (
-          <ListingCard key={car.id} car={car} />
-        ))}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+        <span style={{ fontSize: 12, color: "var(--muted)" }}>
+          {rows.length} {rows.length === 1 ? "Inserat" : "Inserate"}
+        </span>
+      </div>
+
+      {/* List — density driven by the persisted view toggle */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: compact ? 8 : 14 }}>
+        {rows.map((car) =>
+          compact ? <CompactListingCard key={car.id} car={car} /> : <ListingCard key={car.id} car={car} />,
+        )}
         {rows.length === 0 && (
           <div
             style={{
@@ -138,96 +139,35 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/** Dashboard strip shown to a logged-in dealer (board doubles as dashboard). */
-function DealerDashboard({ count }: { count: number }) {
-  const me = dealerById(ME_DEALER_ID);
-  const traded = justTradedCar();
+/** Compact ⇄ Großansicht segmented control. */
+function ViewToggle({ compact, onChange }: { compact: boolean; onChange: (v: "compact" | "comfortable") => void }) {
   return (
-    <div style={{ marginBottom: 18 }}>
-      <p style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--muted)", margin: "0 0 10px" }}>
-        Grüezi, <strong style={{ color: "var(--ink)" }}>{me?.name}</strong> 👋
-      </p>
-
-      {/* quick stats */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-        <Stat value={String(count)} label="auf dem Board" />
-        <Stat value="3" label="meine Inserate" />
-        <Stat value="2" label="offene Anfragen" />
-      </div>
-
-      {/* just-traded car → Scene 4 entry */}
-      {traded && (
-        <Link href={`/order/${traded.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-          <div
-            className="press"
-            style={{
-              display: "flex",
-              gap: 12,
-              alignItems: "center",
-              background: "var(--white)",
-              border: "1.5px solid var(--line)",
-              borderLeft: "3px solid var(--red)",
-              borderRadius: "var(--radius)",
-              padding: 10,
-            }}
-          >
-            <div style={{ width: 96, flexShrink: 0 }}>
-              <CarPhoto car={traded} rounded />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Badge tone="red" style={{ marginBottom: 4 }}>{traded.tradedLabel ?? "Verkauft"}</Badge>
-              <div
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 700,
-                  fontSize: 16,
-                  textTransform: "uppercase",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {traded.make} {traded.model}
-              </div>
-              <div style={{ fontSize: 12, color: "var(--muted)" }}>{chf(traded.priceChf)}</div>
-            </div>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                fontWeight: 600,
-                textTransform: "uppercase",
-                color: "var(--red)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Transport →
-            </span>
-          </div>
-        </Link>
-      )}
+    <div style={{ display: "flex", border: "1.5px solid var(--line)", borderRadius: "var(--radius)", overflow: "hidden" }}>
+      <ToggleBtn active={compact} onClick={() => onChange("compact")} label="Kompakt" />
+      <ToggleBtn active={!compact} onClick={() => onChange("comfortable")} label="Gross" />
     </div>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function ToggleBtn({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <div
+    <button
+      onClick={onClick}
+      className="tap"
       style={{
-        flex: 1,
-        background: "var(--white)",
-        border: "1.5px solid var(--line)",
-        borderRadius: "var(--radius)",
-        padding: "10px 8px",
-        textAlign: "center",
+        fontFamily: "var(--font-mono)",
+        fontSize: 11,
+        fontWeight: 600,
+        textTransform: "uppercase",
+        letterSpacing: ".4px",
+        padding: "6px 11px",
+        cursor: "pointer",
+        border: "none",
+        background: active ? "var(--red)" : "#fff",
+        color: active ? "#fff" : "var(--muted)",
       }}
     >
-      <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 24, color: "var(--ink)" }}>
-        {value}
-      </div>
-      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".3px" }}>
-        {label}
-      </div>
-    </div>
+      {label}
+    </button>
   );
 }

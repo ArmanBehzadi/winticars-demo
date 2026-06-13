@@ -36,7 +36,7 @@ const ICONS = {
 
 function tabsFor(role: Role | null): Tab[] {
   // Supply-side actors lead with their inbox; the dealer leads with the board.
-  if (role === "transporter" || role === "garage") {
+  if (role === "transporter" || role === "garage" || role === "painter") {
     return [
       { href: "/orders", label: "Aufträge", icon: ICONS.orders },
       { href: "/board", label: "Börse", icon: ICONS.board },

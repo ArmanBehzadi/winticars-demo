@@ -61,6 +61,7 @@ export function CreateOrder({ carId }: { carId: string }) {
     const order: Order = {
       id: `o-${carId}-${kind}`,
       kind,
+      carId,
       carLabel,
       requesterName: me?.name ?? "Mein Betrieb",
       providerId: p.id,
@@ -70,6 +71,9 @@ export function CreateOrder({ carId }: { carId: string }) {
       whenText: kind === "transport" ? "Morgen, 14:00 Abholung" : "Termin diese Woche",
       route: kind === "transport" ? `${me?.city ?? "Winterthur"} → ${dest}` : undefined,
       createdText: "gerade eben",
+      messages: [
+        { id: "m-confirm", from: "provider", text: `${p.name} hat den Auftrag angenommen. Wir melden uns mit Details.`, timeText: "gerade eben" },
+      ],
     };
     addOrder(order);
     setPlaced(order);

@@ -20,26 +20,39 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { SEED_ORDERS, type Order, type OrderStatus } from "@/fixtures/orders";
+import {
+  SEED_ORDERS,
+  type Order,
+  type OrderStatus,
+  type OrderMessage,
+} from "@/fixtures/orders";
 
-export type Role = "dealer" | "transporter" | "garage";
+// Supply-side roles are split in v2: garage = MFK/Mechanik, painter = Lackierung.
+export type Role = "dealer" | "transporter" | "garage" | "painter";
 
 export const ROLE_LABELS: Record<Role, string> = {
   dealer: "Händler",
   transporter: "Transporteur",
-  garage: "Garage / Lackierer",
+  garage: "Garage / MFK",
+  painter: "Lackierer",
 };
+
+/** Board layout density — persisted so it survives navigation + relaunch. */
+export type BoardView = "compact" | "comfortable";
 
 type DemoState = {
   role: Role | null;
   contacted: string[]; // listing ids the user has messaged
   orders: Order[]; // seed orders + any created during the demo
+  boardView: BoardView; // compact (dense list) ⇄ comfortable (Großansicht)
 };
 
-const STORAGE_KEY = "winticars-demo-v1";
+// Bumped from v1: the state shape changed (boardView + order messages), so old
+// persisted state must not hydrate into the new app.
+const STORAGE_KEY = "winticars-demo-v2";
 
 function initialState(): DemoState {
-  return { role: null, contacted: [], orders: [...SEED_ORDERS] };
+  return { role: null, contacted: [], orders: [...SEED_ORDERS], boardView: "compact" };
 }
 
 type DemoContextValue = DemoState & {
@@ -49,6 +62,8 @@ type DemoContextValue = DemoState & {
   markContacted: (listingId: string) => void;
   addOrder: (order: Order) => void;
   setOrderStatus: (id: string, status: OrderStatus) => void;
+  addMessage: (orderId: string, message: OrderMessage) => void;
+  setBoardView: (view: BoardView) => void;
   reset: () => void;
 };
 
@@ -106,6 +121,19 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const addMessage = useCallback((orderId: string, message: OrderMessage) => {
+    setState((s) => ({
+      ...s,
+      orders: s.orders.map((o) =>
+        o.id === orderId ? { ...o, messages: [...(o.messages ?? []), message] } : o,
+      ),
+    }));
+  }, []);
+
+  const setBoardView = useCallback((view: BoardView) => {
+    setState((s) => ({ ...s, boardView: view }));
+  }, []);
+
   const reset = useCallback(() => {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -117,7 +145,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
   return (
     <DemoContext.Provider
-      value={{ ...state, hydrated, login, logout, markContacted, addOrder, setOrderStatus, reset }}
+      value={{ ...state, hydrated, login, logout, markContacted, addOrder, setOrderStatus, addMessage, setBoardView, reset }}
     >
       {children}
     </DemoContext.Provider>
